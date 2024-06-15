@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  NodeAppCluster:
+    Type: AWS::ECS::Cluster
+
+  NodeBackendTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+        - Name: node-backend
+          Image: <767397755066>.dkr.ecr.us-east-1.amazonaws.com/node-backend:latest
+          PortMappings:
+            - ContainerPort: 5000
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 256
+      Memory: 512
+
+  NodeFrontendTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+        - Name: node-frontend
+          Image: <767397755066>.dkr.ecr.us-east-1.amazonaws.com/node-frontend:latest
+          PortMappings:
+            - ContainerPort: 80
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 256
+      Memory: 512
+
+  NodeBackendService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref NodeAppCluster
+      DesiredCount: 1
+      TaskDefinition: !Ref NodeBackendTaskDefinition
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets:
+            - subnet-0afe49aac5ae88ced  # Replace with your subnet ID
+          SecurityGroups:
+            - sg-0621b0e603a1b379b  # Replace with your security group ID
+
+  NodeFrontendService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref NodeAppCluster
+      DesiredCount: 1
+      TaskDefinition: !Ref NodeFrontendTaskDefinition
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets:
+            - subnet-0afe49aac5ae88ced  # Replace with your subnet ID
+          SecurityGroups:
+            - sg-0621b0e603a1b379b  # Replace with your security group ID
+
