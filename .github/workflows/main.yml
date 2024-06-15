@@ -1,0 +1,47 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      docker:
+        image: docker:19.03.12
+        options: --privileged
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build backend Docker image
+      run: |
+        docker build -t node-backend ./backend
+        docker tag node-backend:latest dineshvaishnav/node-backend:latest
+        docker push dineshvaishnav/node-backend:latest
+
+    - name: Build frontend Docker image
+      run: |
+        docker build -t node-frontend ./frontend
+        docker tag node-frontend:latest dineshvaishnav/node-frontend:latest
+        docker push dineshvaishnav/node-frontend:latest
+
+    - name: Deploy to AWS
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: us-east-1
+      run: |
+        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com
+        docker tag dineshvaishnav/node-backend:latest 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com/node-backend:latest
+        docker tag dineshvaishnav/node-frontend:latest 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com/node-frontend:latest
+        docker push 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com/node-backend:latest
+        docker push 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com/node-frontend:latest
+        aws cloudformation deploy --template-file cloudformation.yml --stack-name node-app-stack --capabilities CAPABILITY_NAMED_IAM
