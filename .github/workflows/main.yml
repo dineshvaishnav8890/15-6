@@ -11,7 +11,7 @@ jobs:
 
     services:
       docker:
-        image: docker:19.03.12
+        image: docker:24.0.7
         options: --privileged
 
     steps:
