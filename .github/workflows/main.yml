@@ -23,10 +23,11 @@ jobs:
     - name: Login to Amazon ECR
       id: login-ecr
       run: |
-        aws ecr get-login-password --region us-west- | docker login --username AWS --password-stdin 767397755066.dkr.ecr.us-west-1.amazonaws.com
+        aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 767397755066.dkr.ecr.us-west-1.amazonaws.com
 
     - name: Build, tag, and push Docker image
       run: |
         docker build -t my-image:latest .
         docker tag my-image:latest 767397755066.dkr.ecr.us-west-2.amazonaws.com/my-repository:latest
         docker push 767397755066.dkr.ecr.us-west-2.amazonaws.com/my-repository:latest
+         aws cloudformation deploy --template-file cloudformation.yml --stack-name node-app-stack --capabilities CAPABILITY_NAMED_IAM
