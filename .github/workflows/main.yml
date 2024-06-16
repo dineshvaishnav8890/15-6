@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Build and Push Docker Image to ECR
 
 on:
   push:
@@ -6,42 +6,27 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
-
-    services:
-      docker:
-        image: docker:24.0.7
-        options: --privileged
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-1
 
-    - name: Build backend Docker image
+    - name: Login to Amazon ECR
+      id: login-ecr
       run: |
-        docker build -t backend ./backend
-        docker tag backend:latest dineshvaishnav/backend:latest
-        docker push dineshvaishnav/backend:latest
+        aws ecr get-login-password --region us-west- | docker login --username AWS --password-stdin 767397755066.dkr.ecr.us-west-1.amazonaws.com
 
-    - name: Build frontend Docker image
+    - name: Build, tag, and push Docker image
       run: |
-        docker build -t frontend ./frontend
-        docker tag frontend:latest dineshvaishnav/frontend:latest
-        docker push dineshvaishnav/frontend:latest
-
-    - name: Deploy to AWS
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: us-east-1
-      run: |
-        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com
-        docker tag dineshvaishnav/backend:latest 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com/backend:latest
-        docker tag dineshvaishnav/frontend:latest 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
-        docker push 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com/backend:latest
-        docker push 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
-        aws cloudformation deploy --template-file cloudformation.yml --stack-name node-app-stack --capabilities CAPABILITY_NAMED_IAM
+        docker build -t my-image:latest .
+        docker tag my-image:latest 767397755066.dkr.ecr.us-west-2.amazonaws.com/my-repository:latest
+        docker push 767397755066.dkr.ecr.us-west-2.amazonaws.com/my-repository:latest
