@@ -40,8 +40,8 @@ jobs:
         AWS_DEFAULT_REGION: us-east-1
       run: |
         aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com
-        docker tag dineshvaishnav/node-backend:latest 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com/backend:latest
-        docker tag dineshvaishnav/node-frontend:latest 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
+        docker tag dineshvaishnav/backend:latest 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com/backend:latest
+        docker tag dineshvaishnav/frontend:latest 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
         docker push 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com/backend:latest
         docker push 7673-9775-5066.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
         aws cloudformation deploy --template-file cloudformation.yml --stack-name node-app-stack --capabilities CAPABILITY_NAMED_IAM
