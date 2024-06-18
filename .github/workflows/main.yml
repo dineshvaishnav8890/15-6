@@ -31,6 +31,10 @@ jobs:
         docker build -t frontend ./frontend
         docker tag frontend:latest dineshvaishnav/frontend:latest
         docker push dineshvaishnav/frontend:latest
+    - name: Log in to Docker Hub
+      run: |
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        
     - name: Deploy to AWS
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
