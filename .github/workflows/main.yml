@@ -23,9 +23,9 @@ jobs:
 
     - name: Build backend Docker image
       run: |
-        docker build -t backend ./backend
+        docker build -t docker.io/dineshvaishnav/backend .
         docker tag backend:latest dineshvaishnav/backend:latest
-        docker push dineshvaishnav/backend:latest
+        docker push docker.io/dineshvaishnav/backend:latest
     - name: Build frontend Docker image
       run: |
         docker build -t frontend ./frontend
